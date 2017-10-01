@@ -50,16 +50,16 @@ func main() {
     
     for {
         event := <-eventChan
-        go handleEvent(event, conn, &isOnCooldown)
+        go handleEvent(event, conn, config.Channel, &isOnCooldown)
     }
 }
 
-func handleEvent(event event, conn net.Conn, isOnCooldown *bool) {
+func handleEvent(event event, conn net.Conn, channel string, isOnCooldown *bool) {
     if event.code == "PING" {
         fmt.Fprintf(conn, "PONG :%s\r\n", event.message)
     } else if event.code == "PRIVMSG" {
         if !*isOnCooldown && strings.Contains(event.message, "!subhype") {
-            fmt.Fprintf(conn, "PRIVMSG #coruscating :coruscAww Bappa coruscAww Bappa coruscAww Bappa coruscAww\r\n")
+            fmt.Fprintf(conn, "PRIVMSG %s :coruscAww Bappa coruscAww Bappa coruscAww Bappa coruscAww\r\n", channel)
             go cooldown(isOnCooldown)
         }
     }
