@@ -72,7 +72,12 @@ func cooldown(isOnCooldown *bool) {
 }
 
 func parseEvent(line string) event {
-    event := event{}
+    var event event
+
+    if strings.HasPrefix(line, "@") {
+        // TODO: do something with this instead of discarding
+        line = line[strings.Index(line, " ") + 1:]
+    }
     
     if strings.HasPrefix(line, ":") { 
         parts := strings.SplitN(strings.TrimPrefix(line, ":"), " :", 2)
