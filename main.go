@@ -123,6 +123,9 @@ func connect(config config) net.Conn {
     fmt.Fprintf(conn, "PASS %s\r\n", config.Pass)
     fmt.Fprintf(conn, "NICK %s\r\n", config.Nick)
     fmt.Fprintf(conn, "JOIN %s\r\n", config.Channel)
+    fmt.Fprintf(conn, "CAP REQ :twitch.tv/membership\r\n")
+    fmt.Fprintf(conn, "CAP REQ :twitch.tv/tags\r\n")
+    fmt.Fprintf(conn, "CAP REQ :twitch.tv/commands\r\n")
 
     return conn
 }
