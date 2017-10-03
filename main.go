@@ -16,6 +16,7 @@ import (
 type event struct {
     code string
     message string
+    tags map[string]string
 }
 
 type config struct {
@@ -62,6 +63,11 @@ func handleEvent(event event, conn net.Conn, channel string, isOnCooldown *bool)
             fmt.Fprintf(conn, "PRIVMSG %s :coruscAww Bappa coruscAww Bappa coruscAww Bappa coruscAww\r\n", channel)
             go cooldown(isOnCooldown)
         }
+    } else if _, ok := event.tags["login"]; ok && event.code == "USERNOTICE" {
+        fmt.Fprintf(conn,
+                    "PRIVMSG %s :coruscAww coruscAww coruscAww coruscAww Thank you %s for the sub! coruscAww coruscAww coruscAww coruscAww\r\n",
+                    channel,
+                    event.tags["login"])
     }
 }
 
@@ -73,9 +79,19 @@ func cooldown(isOnCooldown *bool) {
 
 func parseEvent(line string) event {
     var event event
+	event.tags = make(map[string]string)
 
     if strings.HasPrefix(line, "@") {
-        // TODO: do something with this instead of discarding
+        tagString := line[:strings.Index(line, " ")]
+        tagString = strings.TrimPrefix(tagString, "@")
+
+        parts := strings.Split(tagString, ";")
+
+        for _, element := range parts {
+            pair := strings.SplitN(element, "=", 2)
+            event.tags[pair[0]] = pair[1]
+        }
+
         line = line[strings.Index(line, " ") + 1:]
     }
     
@@ -111,7 +127,7 @@ func readLines(eventChan chan event, conn net.Conn) {
             break
         }
 
-        fmt.Printf("%s\n", line)
+        log.Printf("%s\n", line)
         eventChan<- parseEvent(line)
     }
 }
